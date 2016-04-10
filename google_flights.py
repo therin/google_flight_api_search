@@ -6,7 +6,7 @@ import smtplib
 
 # Set some variables
 
-apikey = "Insert your API key"
+apikey = "insert your key here"
 
 listofstartdates = ["2016-06-20","2016-06-21","2016-06-22","2016-06-23","2016-06-24","2016-06-25","2016-06-26","2016-06-27","2016-06-28","2016-06-29","2016-06-30",
 "2016-07-01","2016-07-02","2016-07-03","2016-07-04","2016-07-05","2016-07-06","2016-07-07","2016-07-08","2016-07-09","2016-07-10","2016-07-11","2016-07-12"]
@@ -14,7 +14,7 @@ listofstartdates = ["2016-06-20","2016-06-21","2016-06-22","2016-06-23","2016-06
 listofenddates = ["2016-07-20","2016-07-21","2016-07-22","2016-07-23","2016-07-24","2016-07-25","2016-07-26","2016-07-27","2016-07-28","2016-07-29","2016-07-30",
 "2016-07-31","2016-08-01","2016-08-02","2016-08-03","2016-08-04","2016-08-05","2016-08-06","2016-08-07","2016-08-08","2016-08-09","2016-08-10","2016-08-11"]
 
-minprice = "NZD3700"
+minprice = "NZD5700"
 flightsfound = []
 
 def checkprice(startdate,enddate,minprice):
@@ -72,15 +72,23 @@ def checkprice(startdate,enddate,minprice):
 
 for dates in itertools.product(listofstartdates, listofenddates): flightsfound.append(checkprice(dates[0],dates[1],minprice))
 
-# Optional email report with 3 best results:
+try:
+	# Output prices starting with lowest, after a bit of filtering
+	flightsfound = ''.join(["Price: %s %s \n" % (x[0],x[1]) for x in sorted([x for x in flightsfound if x != ""], key=lambda tup: tup[0])])
+except:
+	# A bit a a debugging
+	flightsfound = "Something went wrong"
+	print flightsfound
 
+
+# Optional email report with 3 best results:
 message = """From: From Flight Bot <sergey@server.com>
 To: To Person <sergey@server.com>
 Subject: Daily flight search results
 
 {flightsfound}
 
-""".format(flightsfound=''.join(["Price: %s %s \n" % (x[0],x[1]) for x in sorted(flightsfound, key=lambda tup: tup[0])[0:3]]))
+""".format(flightsfound=flightsfound)
 
 smtpObj = smtplib.SMTP('mail.server.com')
 smtpObj.sendmail("sergey@server.com", ["sergey@server.com"], message)         
